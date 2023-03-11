@@ -1,24 +1,19 @@
-console.log('Try npm run lint/fix!');
+import {LinearClient} from '@linear/sdk';
+import {env} from 'process';
 
-const longString =
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer ut aliquet diam.';
+// Api key authentication
+const linearClient = new LinearClient({
+  apiKey: env.LINEAR_API_KEY,
+});
 
-const trailing = 'Semicolon';
-
-const why = 'am I tabbed?';
-
-export function doSomeStuff(
-  withThis: string,
-  andThat: string,
-  andThose: string[]
-) {
-  //function on one line
-  if (!andThose.length) {
-    return false;
-  }
-  console.log(withThis);
-  console.log(andThat);
-  console.dir(andThose);
-  return;
-}
-// TODO: more examples
+linearClient.viewer.then(me => {
+  return me.assignedIssues().then(myIssues => {
+    if (myIssues.nodes.length) {
+      myIssues.nodes.map(issue =>
+        console.log(`${me.displayName} has issue: ${issue.title}`)
+      );
+    } else {
+      console.log(`${me.displayName} has no issues`);
+    }
+  });
+});
