@@ -1,0 +1,10 @@
+{
+  "name": "linear-cab-dispatcher",
+  "version": "0.0.0",
+  "main": "index.js",
+  "author": "CJ Harries <cj@wizardsoftheweb.pro>",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "typescript": "^4.9.5"
+  }
+}
