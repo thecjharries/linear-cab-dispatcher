@@ -1,24 +1,67 @@
-console.log('Try npm run lint/fix!');
+import {Comment, Issue, LinearClient, Team} from '@linear/sdk';
+import {env} from 'process';
 
-const longString =
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer ut aliquet diam.';
+const ISSUE_IDENTIFIER_PATTERN = new RegExp('^http.*/issue/([^/]+)/.*$');
 
-const trailing = 'Semicolon';
+// Api key authentication
+const linearClient = new LinearClient({
+  apiKey: env.LINEAR_API_KEY,
+});
 
-const why = 'am I tabbed?';
-
-export function doSomeStuff(
-  withThis: string,
-  andThat: string,
-  andThose: string[]
-) {
-  //function on one line
-  if (!andThose.length) {
-    return false;
+function getIssueIdentifierFromUrl(url: string): string | undefined {
+  const match = url.match(ISSUE_IDENTIFIER_PATTERN);
+  if (match) {
+    return match[1];
   }
-  console.log(withThis);
-  console.log(andThat);
-  console.dir(andThose);
-  return;
+  return undefined;
 }
-// TODO: more examples
+
+function drainIssues(team: Team, start?: string): Promise<Issue[]> {
+  const args = start ? {after: start, first: 50} : undefined;
+  return team.issues(args).then(({nodes, pageInfo}) => {
+    if (pageInfo.hasNextPage) {
+      return drainIssues(team, pageInfo.endCursor).then(nextNodes => {
+        return nodes.concat(nextNodes);
+      });
+    }
+    return nodes;
+  });
+}
+
+function drainComments(issue: Issue, start?: string): Promise<Comment[]> {
+  const args = start ? {after: start, first: 50} : undefined;
+  return issue.comments(args).then(({nodes, pageInfo}) => {
+    if (pageInfo.hasNextPage) {
+      return drainComments(issue, pageInfo.endCursor).then(nextNodes => {
+        return nodes.concat(nextNodes);
+      });
+    }
+    return nodes;
+  });
+}
+
+// linearClient
+//   .team(env.TEAM_ID as string)
+//   .then(drainIssues)
+//   .then(issues => {
+//     console.log(issues[0]);
+//     return drainComments(issues[0]);
+//   })
+//   .then(comments => {
+//     console.log(comments);
+//   })
+//   .catch(err => {
+//     console.log(err);
+//   });
+
+// linearClient
+//   .issue(env.ISSUE_ID as string)
+//   .then(issue => {
+//     return issue.comments();
+//   })
+//   .then(comments => {
+//     console.log(comments);
+//   })
+//   .catch(err => {
+//     console.log(err);
+//   });
