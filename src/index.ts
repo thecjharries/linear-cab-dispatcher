@@ -6,13 +6,25 @@ const linearClient = new LinearClient({
   apiKey: env.LINEAR_API_KEY,
 });
 
+// linearClient
+//   .team(env.TEAM_ID as string)
+//   .then(team => {
+//     return team.issues();
+//   })
+//   .then(issues => {
+//     console.log(issues);
+//   })
+//   .catch(err => {
+//     console.log(err);
+//   });
+
 linearClient
-  .team(env.TEAM_ID as string)
-  .then(team => {
-    return team.issues();
+  .issue(env.ISSUE_ID as string)
+  .then(issue => {
+    return issue.comments();
   })
-  .then(issues => {
-    console.log(issues);
+  .then(comments => {
+    console.log(comments);
   })
   .catch(err => {
     console.log(err);
