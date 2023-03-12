@@ -1,10 +1,20 @@
 import {Comment, Issue, LinearClient, Team} from '@linear/sdk';
 import {env} from 'process';
 
+const ISSUE_IDENTIFIER_PATTERN = new RegExp('^http.*/issue/([^/]+)/.*$');
+
 // Api key authentication
 const linearClient = new LinearClient({
   apiKey: env.LINEAR_API_KEY,
 });
+
+function getIssueIdentifierFromUrl(url: string): string | undefined {
+  const match = url.match(ISSUE_IDENTIFIER_PATTERN);
+  if (match) {
+    return match[1];
+  }
+  return undefined;
+}
 
 function drainIssues(team: Team, start?: string): Promise<Issue[]> {
   const args = start ? {after: start, first: 50} : undefined;
@@ -30,20 +40,19 @@ function drainComments(issue: Issue, start?: string): Promise<Comment[]> {
   });
 }
 
-linearClient
-  .team(env.TEAM_ID as string)
-  .then(team => {
-    return drainIssues(team);
-  })
-  .then(issues => {
-    return drainComments(issues[0]);
-  })
-  .then(comments => {
-    console.log(comments);
-  })
-  .catch(err => {
-    console.log(err);
-  });
+// linearClient
+//   .team(env.TEAM_ID as string)
+//   .then(drainIssues)
+//   .then(issues => {
+//     console.log(issues[0]);
+//     return drainComments(issues[0]);
+//   })
+//   .then(comments => {
+//     console.log(comments);
+//   })
+//   .catch(err => {
+//     console.log(err);
+//   });
 
 // linearClient
 //   .issue(env.ISSUE_ID as string)
